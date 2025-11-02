@@ -18,21 +18,28 @@ if (!fs.existsSync(tempDir)) {
 class DiscordPoster {
   constructor(maxFileSize = 8388608) { // 8MB default
     this.maxFileSize = maxFileSize;
-    this.embedColor = 0x0096FA; // Pixiv blue
+    this.embedColor = 0x0096FA; // Blue color for embeds
   }
 
-  async downloadImage(url, referer = 'https://www.pixiv.net/') {
+  async downloadImage(url, referer = null) {
     try {
       logger.debug(`Downloading image from: ${url}`);
+      
+      // Detect source and set appropriate referer
+      const headers = {
+        'User-Agent': 'Mozilla/5.0',
+      };
+      
+      // Only add referer for Pixiv URLs
+      if (url.includes('pixiv.net') || url.includes('pximg.net')) {
+        headers['Referer'] = referer || 'https://www.pixiv.net/';
+      }
       
       const response = await axios({
         method: 'get',
         url: url,
         responseType: 'arraybuffer',
-        headers: {
-          'Referer': referer,
-          'User-Agent': 'Mozilla/5.0',
-        },
+        headers: headers,
         timeout: 30000,
       });
 
@@ -53,36 +60,54 @@ class DiscordPoster {
   createEmbed(illustInfo) {
     const embed = new EmbedBuilder()
       .setColor(this.embedColor)
-      .setTitle(illustInfo.title || 'Untitled')
-      .setURL(illustInfo.url)
-      .setAuthor({
+      .setTitle(illustInfo.title || 'Anime Image')
+      .setURL(illustInfo.url);
+
+    // Add artist info if available (for Pixiv compatibility)
+    if (illustInfo.artist) {
+      embed.setAuthor({
         name: illustInfo.artist.name,
-        url: `https://www.pixiv.net/users/${illustInfo.artist.id}`,
-      })
-      .setDescription(
-        illustInfo.caption?.length > 200 
+        url: illustInfo.artist.id ? `https://www.pixiv.net/users/${illustInfo.artist.id}` : undefined,
+      });
+    }
+
+    // Add description/caption if available
+    if (illustInfo.caption) {
+      embed.setDescription(
+        illustInfo.caption.length > 200 
           ? illustInfo.caption.substring(0, 200) + '...' 
           : illustInfo.caption
-      )
-      .addFields(
-        { 
-          name: '👁️ Views', 
-          value: illustInfo.totalView?.toLocaleString() || 'N/A', 
-          inline: true 
-        },
-        { 
-          name: '❤️ Bookmarks', 
-          value: illustInfo.totalBookmarks?.toLocaleString() || 'N/A', 
-          inline: true 
-        },
-        { 
-          name: '🏷️ Tags', 
-          value: illustInfo.tags.slice(0, 5).join(', ') || 'None', 
-          inline: false 
-        }
-      )
-      .setTimestamp(new Date(illustInfo.createdAt))
-      .setFooter({ text: `Pixiv ID: ${illustInfo.id}` });
+      );
+    }
+
+    // Add category field for waifu.pics
+    if (illustInfo.category) {
+      embed.addFields({
+        name: '� Category',
+        value: illustInfo.category,
+        inline: true
+      });
+    }
+
+    // Add tags if available
+    if (illustInfo.tags && illustInfo.tags.length > 0) {
+      embed.addFields({
+        name: '🏷️ Tags',
+        value: illustInfo.tags.slice(0, 5).join(', '),
+        inline: false
+      });
+    }
+
+    // Add timestamp
+    if (illustInfo.createdAt) {
+      embed.setTimestamp(new Date(illustInfo.createdAt));
+    } else {
+      embed.setTimestamp();
+    }
+
+    // Set footer with source
+    const footerText = illustInfo.source || 'waifu.pics';
+    embed.setFooter({ text: footerText });
 
     return embed;
   }
@@ -110,7 +135,7 @@ class DiscordPoster {
 
       // Determine file extension
       const ext = illustInfo.imageUrl.split('.').pop().split('?')[0] || 'jpg';
-      const filename = `pixiv_${illustInfo.id}.${ext}`;
+      const filename = `anime_${illustInfo.id}.${ext}`;
 
       // Create attachment
       const attachment = new AttachmentBuilder(imageBuffer, { name: filename });

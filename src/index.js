@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { logger } from './utils/logger.js';
-import { pixivService } from './utils/pixivService.js';
 import { autoPostScheduler } from './utils/scheduler.js';
 
 // Load environment variables
@@ -45,13 +44,6 @@ for (const file of commandFiles) {
 client.once(Events.ClientReady, async (readyClient) => {
   logger.info(`✅ Bot is ready! Logged in as ${readyClient.user.tag}`);
   logger.info(`📊 Serving ${readyClient.guilds.cache.size} guild(s)`);
-  
-  // Initialize Pixiv service
-  try {
-    await pixivService.initialize();
-  } catch (error) {
-    logger.error('Failed to initialize Pixiv service:', error);
-  }
 
   // Start auto-post scheduler if enabled
   if (process.env.AUTO_POST_ENABLED === 'true') {
