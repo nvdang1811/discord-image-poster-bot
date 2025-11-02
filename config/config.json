@@ -1,0 +1,54 @@
+{
+  "defaultTags": ["illustration"],
+  "maxImagesPerFetch": 5,
+  "batchPostCount": 5,
+  "minViews": 10000,
+  "minBookmarks": 1000,
+  "imageQuality": "original",
+  "autoPostInterval": 300000,
+  "embedColor": "#0096FA",
+  "maxFileSize": 8388608,
+  "allowedContentRating": ["safe"],
+  "logLevel": "info",
+  "suppressNotifications": true,
+  "allowAIGenerated": false,
+  "blacklistedTags": [],
+  "whitelistedTags": [],
+  "dailyRanking": {
+    "enabled": true,
+    "time": "23:55",
+    "topCount": 10
+  },
+  "channels": [
+    {
+      "id": "952225235539722290",
+      "name": "SFW Channel",
+      "enabled": true,
+      "nsfwFilter": true,
+      "nsfwOnly": false,
+      "searchQuery": "illustration",
+      "tags": ["illustration"],
+      "minViews": 0,
+      "minBookmarks": 0,
+      "allowAI": false,
+      "blacklistedTags": ["gore", "violence", "guro", "nsfw", "r-18", "ecchi", "腐女子", "yaoi", "scat"],
+      "whitelistedTags": [],
+      "randomWhitelistTags": ["anime", "original", "fanart", "scenery", "cute", "portrait", "fantasy", "landscape"]
+    },
+    {
+      "id": "927527272104214528",
+      "name": "NSFW Channel",
+      "enabled": true,
+      "nsfwFilter": false,
+      "nsfwOnly": true,
+      "searchQuery": "R-18",
+      "tags": ["illustration"],
+      "minViews": 0,
+      "minBookmarks": 0,
+      "allowAI": false,
+      "blacklistedTags": ["gore", "violence", "guro", "yaoi", "scat"],
+      "whitelistedTags": [],
+      "randomWhitelistTags": ["bikini", "swimsuit", "lingerie", "sexy", "maid", "bunny girl", "hololive", "yuri", "loli", "ロリ"]
+    }
+  ]
+}
